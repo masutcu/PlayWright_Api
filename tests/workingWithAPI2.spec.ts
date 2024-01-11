@@ -17,10 +17,7 @@ test.beforeEach(async ({ page }) => {
 
 
   await page.goto('https://angular.realworld.how/')
-  await page.getByText('Sign in').click()
-  await page.getByRole('textbox', { name: "Email" }).fill('masutcu@gmail.com')
-  await page.getByRole('textbox', { name: "Password" }).fill('Litvanya')
-  await page.getByRole('button').click()
+  
 
 })
 
@@ -39,7 +36,7 @@ test('has title', async ({ page }) => {
 
   await page.getByText('Global Feed').click()
   await expect(page.locator('.navbar-brand')).toHaveText('conduit');
-  await expect(page.locator('app-article-list h1').first()).toContainText('Mock test title')
+  await expect(page.locator('app-article-list h1').first()).toContainText('MOCK test title')
   await expect(page.locator('app-article-list p').first()).toContainText('Mock description')
 
 });
@@ -54,27 +51,12 @@ test('post with api delete normal artice', async ({ page, request }) => {
 
 
 
-  const response = await request.post('https://api.realworld.io/api/users/login', {
-    //playwright da request body data olarak isimlendirilir.  
-    data: {
-
-      "user": {
-        "email": "masutcu@gmail.com",
-        "password": "Litvanya"
-      }
-    }
-  })
-  const responseBody = await response.json()
-  console.log(responseBody) //consola gelen body den token alacağız
-  const accessToken = responseBody.user.token //token ı veriableye atadık
+  
 
   const articleResponse = await request.post('https://api.realworld.io/api/articles/', {
     data: {
       "article": { "tagList": [], "title": "Test title", "description": "Test description", "body": "Test body" }
     },
-    headers: {
-      Authorization: `Token ${accessToken}`
-    }
   })
   expect(articleResponse.status()).toEqual(201) //kayıtlı olan silinmez ise hata verir
 
@@ -101,30 +83,17 @@ test('create normal del with api article', async ({ page, request }) => {
   await page.getByText('Global Feed').click()
 
   await expect(page.locator('app-article-list h1').first()).toContainText('Playwright Deneme')
-  const response = await request.post('https://api.realworld.io/api/users/login', {
-    //playwright da request body data olarak isimlendirilir.  
-    data: {
+  
 
-      "user": {
-        "email": "masutcu@gmail.com",
-        "password": "Litvanya"
-      }
-    }
-  })
-  const responseBody = await response.json()
-  console.log(responseBody) //consola gelen body den token alacağız
-  const accessToken = responseBody.user.token //token ı veriableye atadık
-
-  const deleteArticleResponse = await request.delete(`https://api.realworld.io/api/articles/${slugId}`, {
-    headers: {
-      Authorization: `Token ${accessToken}`
-    }
-  })
+  const deleteArticleResponse = await request.delete(`https://api.realworld.io/api/articles/${slugId}`)
   expect(deleteArticleResponse.status()).toEqual(204)
 
 })
 
+/*We created a new file offset setups where we moved the step related to authentication. Authentication now is saved into the .auth/user.Json and then the state is shared across other tests Using this file, we set this configuration inside the playwright config and that the dependency on the setup project that will run the offset opts. And now every time we run the framework authentication will happen just once and all other tests will share this authentication state for the other tests.
 
+and last update frame
+we replaced the authentication process by just calling the API and saving our token inside of the user.Json because this is the way how our application is authenticated in this particular case. And also we know that our access token is needed to make an API calls and in order to reuse this value again and again inside of the test and avoid calling the authorization URL multiple times for every test, we save the value of access token in the process environment variable. Then we configure this process environment variable as authorization header globally for the framework and then we can simply remove all those instances of calling the authorization URL or headers inside of the API call, which is simplify the code, make it nicer and easier to read.*/
 
 
 
