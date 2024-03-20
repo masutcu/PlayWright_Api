@@ -6,12 +6,23 @@ test.beforeEach(async ({ page }) => {
   //Bir mock oluşturmak istediğinizde, tarayıcının belirli bir API'ye çağrı yapmasından önce bunu playwright çerçevesi içinde yapılandırmanız gerekir.
 
   await page.route('https://api.realworld.io/api/tags', async route => {
-
+    
+  const tags1={
+      "tags": [
+        "Automation By",
+        "Mehmet",
+        "Ali",
+        "Sütçü"
+      ]
+    }     
+     
     await route.fulfill({
-      body: JSON.stringify(tags)
+      body: JSON.stringify(tags)  // veya tags i test data klasörü içinde json dosyası olarak oluşturup ve import edebiliriz
 
-    })
+    })    
   })
+
+  
   await page.route('*/**/api/articles*', async route => {
     const response = await route.fetch()
     const responseBody = await response.json()
